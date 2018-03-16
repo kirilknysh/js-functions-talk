@@ -1,2 +1,2 @@
-# js-scope-talk
-JS scope
+# js-functions-talk
+JS functions
