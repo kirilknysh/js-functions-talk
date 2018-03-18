@@ -30,7 +30,530 @@
 					<aside class="notes">
 						Landing
 					</aside>
-				</section>
+        </section>
+        <section>
+          <section>
+            <p>function as a <span class="emphasis">function</span></p>
+            <pre><code data-trim data-noescape>
+function add(left, right) {
+  return left + right;
+}
+            </code></pre>
+          </section>
+          <section>
+            <p>function as a <span class="emphasis">method</span></p>
+            <pre><code data-trim data-noescape>
+const obj = {
+  left: 10,
+  add: function(right) {
+    this.left += right;
+
+    return this.left;
+  },
+};
+            </code></pre>
+          </section>
+          <section>
+            <p>function as a <span class="emphasis">constructor</span></p>
+            <pre><code data-trim data-noescape>
+function Pie(radius, height) {
+  this.radius = radius;
+  this.height = height;
+}
+
+const pie = new Pie(20, 5);
+            </code></pre>
+          </section>
+          <section>
+            <p>function is an <span class="emphasis">object</span> (first-class function)</p>
+            <pre><code data-trim data-noescape>
+function logPrice(price) {
+  console.log(price);
+}
+
+function currencize(logger, currency) {
+  function currencized(price) {
+    return logger(currency + price);
+  }
+
+  currencized.currency = currency;
+
+  return currencized;
+}
+
+const logPriceEuro = currencize(logPrice, '€');
+
+logPriceEuro(42);
+            </code></pre>
+          </section>
+        </section>
+        <section>
+          <section>
+            <p>define <span class="emphasis">function</span>:</p>
+            <ul>
+              <li>function declaration</li>
+              <li>function expression</li>
+            </ul>
+          </section>
+          <section>
+            <p>function <span class="emphasis">declaration</span></p>
+            <pre><code data-trim data-noescape>
+function functionName([parameters]) {
+  // function body
+}
+            </code></pre>
+            <pre><code data-trim data-noescape>
+add(1, 1);
+
+function add(left, right) {
+  return left + right;
+}
+            </code></pre>
+          </section>
+          <section>
+            <p>function <span class="emphasis">declaration</span></p>
+            <pre><code data-trim data-noescape>
+console.log(pie);
+
+var pie = 'lemon'; // can be fixed by var -> let
+console.log(pie);
+
+pie = 'choco';
+function pie() {}
+console.log(pie);
+            </code></pre>
+          </section>
+          <section>
+            <p>function <span class="emphasis">expression</span></p>
+            <pre><code data-trim data-noescape>
+variableName = function([parameters]) {
+  // function body
+};
+            </code></pre>
+            <pre><code data-trim data-noescape>
+const add = function(left, right) {
+  return left + right;
+}
+
+add(1, 1);
+            </code></pre>
+          </section>
+          <section>
+            <p>named function <span class="emphasis">expression</span></p>
+            <pre><code data-trim data-noescape>
+variableName = function functionName([parameters]) {
+  // function body
+};
+            </code></pre>
+            <pre><code data-trim data-noescape>
+const getFibonacci = function fibonacci(n) {
+  if (n <= 1) {
+    return 1;
+  }
+
+  return fibonacci(n - 1) + fibonacci(n - 2);
+}
+
+getFibonacci(5);
+fibonacci(10); // ReferenceError: fibonacci is not defined
+            </code></pre>
+          </section>
+          <section>
+            <p><span class="emphasis">Function</span> constructor</p>
+            <pre><code data-trim data-noescape>
+const add = new Function('left', 'right', 'return left + right;');
+
+add(1, 41);
+            </code></pre>
+            <p class="fragment">Every JavaScript function is actually a <span class="emphasis">Function</span> object.</p>
+          </section>
+        </section>
+        <section>
+          <section>
+            <p>passing arguments to function</p>
+            <ul>
+              <li><span class="emphasis">primitives</span> as passed "by value"</li>
+              <li><span class="emphasis">objects</span> as passed "by reference"</li>
+            </ul>
+          </section>
+          <section>
+            <p>passing <span class="emphasis">primitives</span> to function</p>
+            <pre><code data-trim data-noescape>
+function cookPie(type, radius, slice) {
+  console.log('#cookPie:0', type, radius, slice);
+
+  type = 'choco';
+  radius = 42;
+  slice = false;
+
+  console.log('#cookPie:1', type, radius, slice);
+}
+
+const type = 'lemon';
+const radius = 30;
+const slice = true;
+
+cookPie(type, radius, slice);
+console.log('#global:0', type, radius, slice);
+            </code></pre>
+          </section>
+          <section>
+            <p>passing <span class="emphasis">objects</span> to function</p>
+            <pre><code data-trim data-noescape>
+function cookPie(pieOptions) {
+  console.log('#cookPie:0', pieOptions);
+
+  pieOptions.type = 'choco';
+  console.log('#cookPie:1', pieOptions);
+
+  pieOptions = {};
+  console.log('#cookPie:2', pieOptions);
+}
+
+const options = { type: 'lemon', radius: 30, slice: true };
+
+cookPie(options);
+console.log('#global:0', options);
+            </code></pre>
+          </section>
+          <section>
+            <p>passing arguments to function</p>
+            <ul>
+              <li class="fragment">
+                <p>extra arguments are ignored</p>
+                <pre style="width: 100%;"><code data-trim data-noescape>
+function cookPie(type, radius, slice) {
+  console.log('#cookPie:0', type, radius, slice);
+}
+cookPie('lemon', 21, true, 'extra', 'args');
+                </code></pre>
+              </li>
+              <li class="fragment">
+                <p>missing arguments set to <span class="hljs" style="display: initial; padding: 3px 5px;">undefined</span></p>
+                <pre style="width: 100%;"><code data-trim data-noescape>
+function cookPie(type, radius, slice) {
+  console.log('#cookPie:0', type, radius, slice);
+}
+cookPie('lemon');
+                </code></pre>
+              </li>
+            </ul>
+          </section>
+          <section>
+            <p>passing <span class="emphasis">arguments</span> to function</p>
+            <pre style="width: 100%;"><code data-trim data-noescape>
+function cookPie() {
+  console.log('#cookPie:0', arguments[0], arguments[1], arguments[2]);
+  console.log('#cookPie:1', arguments.length);
+  console.log('#cookPie:2', arguments.callee);
+  console.log('#cookPie:3', Array.isArray(arguments));
+}
+
+cookPie('lemon', 14, true);
+            </code></pre>
+          </section>
+          <section>
+            <p>passing <span class="emphasis">...arguments</span> to function</p>
+            <pre style="width: 100%;"><code data-trim data-noescape>
+function cookPie(...args) {
+  console.log('#cookPie:0', args[0], args[1], args[2]);
+  console.log('#cookPie:1', args.length);
+  console.log('#cookPie:2', Array.isArray(args));
+}
+
+cookPie('lemon', 14, true);
+            </code></pre>
+            <pre class="fragment" style="width: 100%;"><code data-trim data-noescape>
+function sharePie(type, ...friends) {
+  console.log('#cookPie:0', type, friends);
+}
+
+sharePie('lemon', 'Albert', 'Alan', 'Stephen');
+            </code></pre>
+          </section>
+        </section>
+        <section>
+          <section>
+            <p>returning value from function</p>
+            <pre><code data-trim data-noescape>
+return value;
+            </code></pre>
+            <pre><code data-trim data-noescape>
+return; // return undefined;
+            </code></pre>
+            <p class="fragment">except constructors whose default return value is <span class="emphasis">this</span></p>
+          </section>
+          <section>
+            <p>returning value from function</p>
+            <pre><code data-trim data-noescape>
+function returnPieType(n) {
+  if (n === 0) {
+    return 'lemon';
+  }
+  if (n === 1) {
+    return;
+  }
+  if (n === 2) {}
+  if (n === 3) {
+    this.type = 'choco';
+  }
+}
+
+console.log(returnPieType(0));
+console.log(returnPieType(1));
+console.log(returnPieType(2));
+console.log(new returnPieType(3));
+            </code></pre>
+          </section>
+        </section>
+        <section>
+          <section>
+            <p>function as <span class="emphasis">data</span></p>
+            <pre><code data-trim data-noescape>
+function cookPie(type, radius, slice) {
+  console.log('#cookPie:0', type, radius, slice);
+}
+
+const pieFlow = [mixIngredients, cookPie];
+pieFlow[1]('lemon', 42, false);
+
+cookPie.oven = 'oven#1';
+
+const lemonPie = {
+  type: 'lemon',
+  cook: cookPie,
+};
+            </code></pre>
+          </section>
+          <section>
+            <p>function as <span class="emphasis">data</span></p>
+            <pre><code data-trim data-noescape>
+function callCounter(func) {
+  func.callCounter = 0;
+
+  return function(...args) {
+    func.callCounter += 1;
+
+    return func(...args);
+  };
+}
+
+function cookPie(type, radius, slice) {
+  console.log('#cookPie:0', type, radius, slice);
+}
+
+const countedCookPie = callCounter(cookPie);
+            </code></pre>
+          </section>
+        </section>
+        <section>
+          <section>
+            <p><span class="emphasis">this</span></p>
+          </section>
+          <section>
+            <p><span class="emphasis">this</span></p>
+            <ul>
+              <li>determined in runtime</li>
+              <li>immutable</li>
+            </ul>
+          </section>
+          <section>
+            <p><span class="emphasis">this</span> in global context</p>
+            <pre><code data-trim data-noescape>
+function cookPie() {
+  console.log(this);
+}
+
+cookPie();
+            </code></pre>
+          </section>
+          <section>
+            <p>value of <span class="emphasis">this</span> is determined by the invocation form, not context of definition</p>
+            <pre><code data-trim data-noescape>
+function cookPie() {
+  console.log(this.type);
+}
+
+const lemonPie = { type: 'lemon' };
+const chocoPie = { type: 'choco' };
+
+lemonPie.cookPie = cookPie;
+chocoPie.cookPie = cookPie;
+
+lemonPie.cookPie(); // 'lemon'
+chocoPie.cookPie(); // 'choco'
+
+cookPie(); // undefined
+
+new cookPie(); // undefined
+            </code></pre>
+          </section>
+          <section>
+            <p>value of <span class="emphasis">this</span></p>
+            <pre class="fragment"><code data-trim data-noescape>
+function cookPie() {
+  console.log(this); // window
+}
+
+function cookStrictPie() {
+  'use strict';
+  console.log(this); // undefined
+}
+            </code></pre>
+            <pre class="fragment"><code data-trim data-noescape>
+const lemonPie = {
+  type: 'lemon',
+  cookPie: function () { console.log(this); },
+};
+
+lemonPie.cookPie();
+
+const cookPie = lemonPie.cookPie;
+
+cookPie();
+            </code></pre>
+          </section>
+          <section>
+            <p>value of <span class="emphasis">this</span></p>
+            <pre><code data-trim data-noescape>
+function Pie(type, radius) {
+  this.type = type;
+  this.radius = radius;
+  this.cook = function () {
+    console.log(this);
+  };
+}
+
+const lemonPie = new Pie('lemon', 38);
+lemonPie.cook();
+
+const chocoPie = Pie('choco', 24);
+chocoPie.cook();
+            </code></pre>
+          </section>
+          <section>
+            <p>value of deep <span class="emphasis">this</span></p>
+            <pre><code data-trim data-noescape>
+function Pie(type, radius) {
+  this.type = type;
+  this.radius = radius;
+  this.cook = function () {
+    const that = this;
+    console.log(that); // pie
+
+    const innerCook = function() {
+      console.log(this); // window
+      console.log(that); // pie
+    };
+
+    innerCook();
+  };
+}
+
+const lemonPie = new Pie('lemon', 38);
+lemonPie.cook();
+            </code></pre>
+          </section>
+        </section>
+        <section>
+          <section>
+            <p>change function's <span class="emphasis">context</span>:</p>
+            <ul>
+              <li>call</li>
+              <li>apply</li>
+              <li>bind</li>
+            </ul>
+          </section>
+          <section>
+            <p>change function's context: <span class="emphasis">call</span></p>
+            <pre class="fragment"><code data-trim data-noescape>
+function cookPie() {
+  console.log('#cookPie', this.type, this.radius);
+}
+
+const lemonPie = { type: 'lemon', radius: 9, cook: cookPie };
+lemonPie.cook();
+
+const chocoPie = { type: 'choco', radius: 17 };
+lemonPie.cook.call(chocoPie);
+            </code></pre>
+            <pre class="fragment"><code data-trim data-noescape>
+function cookPie(radius, slice) {
+  console.log('#cookPie', this.type, radius, slice);
+}
+
+const lemonPie = { type: 'lemon', radius: 9 };
+cookPie.call(lemonPie, 14, false);
+            </code></pre>
+          </section>
+          <section>
+            <p>change function's context: <span class="emphasis">apply</span></p>
+            <pre class="fragment"><code data-trim data-noescape>
+function cookPie() {
+  console.log('#cookPie', this.type, this.radius);
+}
+
+const lemonPie = { type: 'lemon', radius: 9, cook: cookPie };
+lemonPie.cook();
+
+const chocoPie = { type: 'choco', radius: 17 };
+lemonPie.cook.apply(chocoPie);
+            </code></pre>
+            <pre class="fragment"><code data-trim data-noescape>
+function cookPie(radius, slice) {
+  console.log('#cookPie', this.type, radius, slice);
+}
+
+const lemonPie = { type: 'lemon', radius: 9 };
+cookPie.apply(lemonPie, [14, false]);
+            </code></pre>
+          </section>
+          <section>
+            <p><span class="emphasis">call</span> vs <span class="emphasis">apply</span></p>
+            <p class="fragment">
+              function.call(thisArg, arg1, arg2, ...)
+            </p>
+            <p class="fragment">
+              func.<span class="emphasis">a</span>pply(thisArg, [args<span class="emphasis">A</span>rray])
+            </p>
+            <pre class="fragment"><code data-trim data-noescape>
+const numbers = [1, 13, 8, 5, 3];
+
+console.log(Math.max.apply(Math, numbers));
+console.log(Math.max.call(Math, ...numbers));
+console.log(Math.max(...numbers));
+            </code></pre>
+          </section>
+          <section>
+            <p><span class="emphasis">bind</span></p>
+            <p class="fragment">
+                fun.bind(thisArg, arg1, arg2, ...)
+            </p>
+            <pre class="fragment"><code data-trim data-noescape>
+function cookPie(radius, slice) {
+  console.log('#cookPie', this.type, radius, slice);
+}
+
+const lemonPie = { type: 'lemon', radius: 9 };
+
+const cookLemonPie = cookPie.bind(lemonPie);
+cookLemonPie(47, true);
+
+const cookHugeLemonPie = cookPie.bind(lemonPie, Number.MAX_SAFE_INTEGER);
+cookHugeLemonPie(false);
+            </code></pre>
+          </section>
+        </section>
+        <section>
+          TODO:
+          - IIFE (Immediately Invoking Function Expressions)
+          - closure + context
+          - fat arrow functions
+          - self-overwriting functions + lazy
+          - chaining
+          - singleton
+          - decorator
+        </section>
 				<section>
 					<h2 class="emphasis">Thanks</h2>
 				</section>
