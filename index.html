@@ -545,14 +545,281 @@ cookHugeLemonPie(false);
           </section>
         </section>
         <section>
+          <p><span class="emphasis">IIFE</span> (Immediately Invoking Function Expressions)</p>
+          <pre class="fragment current-visible" style="position: absolute;"><code data-trim data-noescape>
+function () {
+  // code
+}
+          </code></pre>
+          <pre class="fragment current-visible" style="position: absolute;"><code data-trim data-noescape>
+(function () {
+  // code
+})
+          </code></pre>
+          <pre class="fragment current-visible" style="position: absolute;"><code data-trim data-noescape>
+(function () {
+  // code
+})();
+          </code></pre>
+          <pre class="fragment current-visible" style="position: absolute;"><code data-trim data-noescape>
+(function (arg0, arg1) {
+  // code
+})('arg', 1);
+          </code></pre>
+          <pre class="fragment" style="position: absolute;"><code data-trim data-noescape>
+const lemonPie = {
+  radius: 9,
+  cook: (function () {
+    const type = 'lemon';
+
+    return function() {
+      console.log('#cook', type, this.radius);
+    };
+  })(),
+};
+          </code></pre>
+        </section>
+        <section>
+          <section>
+            <p><span class="emphasis">scope</span>: static (lexical) vs dynamic</p>
+            <p class="fragment">
+              <span class="emphasis">static (lexical) scope</span> - if only by looking at the source code one can determine in which environment a binding is resolved.
+            </p>
+            <p class="fragment">
+              <span class="emphasis">dynamic scope</span> - if a caller defines an activation environment of a callee.
+            </p>
+            <p class="fragment">
+              JS implements <span class="emphasis">static scope</span> for all except <span class="emphasis">this</span>
+            </p>
+          </section>
+          <section>
+            <p><span class="emphasis">static (lexical)</span> scope</p>
+            <pre class="fragment"><code data-trim data-noescape>
+const pie = { type: 'lemon', radius: 91 };
+
+function cookPie() {
+  console.log('#cookPie', pie);
+}
+
+function cookMyPie() {
+  const pie = { type: 'choco', radius: 87 };
+
+  cookPie();
+}
+
+cookMyPie();
+            </code></pre>
+          </section>
+          <section>
+            <p>what's wrong with <span class="emphasis">this</span>? Or dynamic scope</p>
+            <pre class="fragment"><code data-trim data-noescape>
+function cook() {
+  console.log('#cookPie', this.type, this.radius);
+}
+
+const lemonPie = { cook, type: 'lemon', radius: 46 };
+const chocoPie = { cook, type: 'choco', radius: 44 };
+
+lemonPie.cook();
+chocoPie.cook();
+            </code></pre>
+          </section>
+        </section>
+        <section>
+          <section>
+            <p><span class="emphasis">fat arrow</span> functions</p>
+            <pre class="fragment"><code data-trim data-noescape>
+(...args) => {
+  return args;
+}
+            </code></pre>
+            <ul>
+              <li class="fragment">no own <span class="hljs" style="display: initial; padding: 3px 5px;">this</span></li>
+              <li class="fragment">no own <span class="hljs" style="display: initial; padding: 3px 5px;">arguments</span></li>
+              <li class="fragment">cannot be used as constructors</li>
+            </ul>
+          </section>
+          <section>
+            <p><span class="emphasis">() => {}</span> this</p>
+            <pre class="fragment"><code data-trim data-noescape>
+const cook = () => {
+  console.log('#cookPie', this.type, this.radius);
+}
+
+const lemonPie = { cook, type: 'lemon', radius: 46 };
+const chocoPie = { cook, type: 'choco', radius: 44 };
+
+lemonPie.cook();
+chocoPie.cook();
+            </code></pre>
+            <pre class="fragment"><code data-trim data-noescape>
+const lemonPie = {
+  type: 'lemon',
+  radius: 46,
+  cook: function() {
+    const fatCook = () => { console.log('#fatCookPie', this); }
+
+    fatCook();
+  }
+};
+
+lemonPie.cook();
+            </code></pre>
+          </section>
+          <section>
+            <p><span class="emphasis">() => {}</span> arguments</p>
+            <pre class="fragment"><code data-trim data-noescape>
+const cookPie = () => {
+  console.log('#cookPie', arguments); // ReferenceError: arguments is not defined
+}
+
+cookPie('lemon', '55');
+            </code></pre>
+            <pre class="fragment"><code data-trim data-noescape>
+const cookPie = (...args) => {
+  console.log('#cookPie', args);
+}
+
+cookPie('lemon', '55');
+            </code></pre>
+          </section>
+          <section>
+            <p><span class="emphasis">() => {}</span> ctor</p>
+            <pre class="fragment"><code data-trim data-noescape>
+const Pie = (radius, height) => {
+  this.radius = radius;
+  this.height = height;
+}
+
+const pie = new Pie(20, 5); // TypeError: Pie is not a constructor
+            </code></pre>
+          </section>
+          <section>
+            <p><span class="emphasis">() => {}</span> short syntax</p>
+            <pre><code data-trim data-noescape>
+const cookPie = (pie) => {
+  return console.log('#cookPie', pie);
+};
+            </code></pre>
+            <pre class="fragment"><code data-trim data-noescape>
+const cookPie = pie => console.log('#cookPie', pie);
+            </code></pre>
+            <pre class="fragment"><code data-trim data-noescape>
+const cookPie = (pie, factory) => factory.cook(pie);
+            </code></pre>
+            <pre class="fragment"><code data-trim data-noescape>
+const cookPie = pie => ({ error: 'Cannot cook 👨‍🍳' });
+            </code></pre>
+          </section>
+          <section>
+            <p><span class="emphasis">() => {}</span> perfect fit</p>
+            <pre><code data-trim data-noescape>
+const pies = [
+  { type: 'lemon', radius: 1 },
+  { type: 'choco', radius: 4 },
+  { type: 'lemon', radius: 2 },
+];
+            </code></pre>
+            <pre class="fragment"><code data-trim data-noescape>
+pies.filter(function (pie) {
+  return pie.radius > 2;
+}).map(function(pie) {
+  return { type: pie.type, crashed: true };
+});
+            </code></pre>
+            <pre class="fragment"><code data-trim data-noescape>
+pies
+  .filter(pie => pie.radius > 2)
+  .map(pie => ({ type: pie.type, crashed: true }));
+            </code></pre>
+          </section>
+        </section>
+        <section>
           TODO:
-          - IIFE (Immediately Invoking Function Expressions)
           - closure + context
-          - fat arrow functions
-          - self-overwriting functions + lazy
-          - chaining
-          - singleton
-          - decorator
+        </section>
+        <section>
+          <p><span class="emphasis">chain</span>ing</p>
+          <pre class="fragment"><code data-trim data-noescape>
+lemonPie.inc().inc().dec().rad();
+          </code></pre>
+          <pre class="fragment"><code data-trim data-noescape>
+const lemonPie = {
+  type: 'lemon',
+  radius: 6,
+  inc: function () {
+    this.radius += 1;
+
+    return this;
+  },
+  dec: function () {
+    this.radius -= 1;
+
+    return this;
+  },
+  rad: function () {
+    return this.radius;
+  },
+};
+          </code></pre>
+        </section>
+        <section>
+          <p><span class="emphasis">self-overwriting</span> functions</p>
+          <pre class="fragment"><code data-trim data-noescape>
+getRadius(); // 2
+getRadius(); // 4
+getRadius(); // 6
+          </code></pre>
+          <pre class="fragment"><code data-trim data-noescape>
+function getRadius() {
+  let radius = 0;
+
+  getRadius = function() {
+    return radius += 2;
+  };
+
+  return getRadius();
+}
+          </code></pre>
+        </section>
+        <section>
+          <p><span class="emphasis">singleton</span></p>
+          <pre class="fragment"><code data-trim data-noescape>
+const factory1 = new PieFactory();
+const factory2 = new PieFactory();
+
+factory1 === factory2; // true
+          </code></pre>
+          <pre class="fragment"><code data-trim data-noescape>
+function PieFactory() {
+  const instance = this;
+
+  PieFactory = function() {
+    return instance;
+  }
+}
+          </code></pre>
+        </section>
+        <section>
+          <p><span class="emphasis">decorator</span></p>
+          <pre class="fragment"><code data-trim data-noescape>
+function cookPie(type, radius, slice) {
+  console.log('#cookPie', type, radius, slice);
+}
+          </code></pre>
+          <pre class="fragment"><code data-trim data-noescape>
+function sendStats(func) {
+  return function(...args) {
+    console.log('#stats:', args);
+    return func(...args);
+  };
+}
+          </code></pre>
+          <pre class="fragment"><code data-trim data-noescape>
+cookPie = sendStats(cookPie);
+
+cookPie('lemon', 71, true);
+          </code></pre>
         </section>
 				<section>
 					<h2 class="emphasis">Thanks</h2>
