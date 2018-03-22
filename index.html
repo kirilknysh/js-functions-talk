@@ -583,10 +583,10 @@ const lemonPie = {
           <section>
             <p><span class="emphasis">scope</span>: static (lexical) vs dynamic</p>
             <p class="fragment">
-              <span class="emphasis">static (lexical) scope</span> - if only by looking at the source code one can determine in which environment a binding is resolved.
+              <span class="emphasis">static (lexical) scope</span> - if only by looking at the source code one can determine in which environment a binding is resolved
             </p>
             <p class="fragment">
-              <span class="emphasis">dynamic scope</span> - if a caller defines an activation environment of a callee.
+              <span class="emphasis">dynamic scope</span> - if a caller defines an activation environment of a callee
             </p>
             <p class="fragment">
               JS implements <span class="emphasis">static scope</span> for all except <span class="emphasis">this</span>
@@ -735,8 +735,87 @@ pies
           </section>
         </section>
         <section>
-          TODO:
-          - closure + context
+          <section>
+            <p><span class="emphasis">closure</span></p>
+            <p>A <span class="emphasis">closure</span> is the combination of a function and the lexical environment within which that function was declared</p>
+            <pre class="fragment current-visible" style="position: absolute;"><code data-trim data-noescape>
+function makeCooker() {
+  const name = 'Isaac';
+
+  return function () {
+    console.log(name);
+  };
+}
+
+const cooker = makeCooker();
+cooker();
+            </code></pre>
+            <pre class="fragment current-visible" style="position: absolute;"><code data-trim data-noescape>
+function makeCooker(name) {
+  return function (pie) {
+    console.log(name, 'is going to cook', pie);
+  };
+}
+
+const cooker = makeCooker('Albert');
+cooker('lemon pie');
+            </code></pre>
+          </section>
+          <section>
+            <p>private members via <span class="emphasis">closure</span></p>
+            <pre class="fragment"><code data-trim data-noescape>
+const lemonPie = (function() {
+  const type = 'lemon';
+  let radius = 0;
+
+  return {
+    inc: () => radius += 1,
+    dec: () => radius -= 1,
+    rad: () => radius,
+  };
+})();
+            </code></pre>
+          </section>
+          <section>
+            <p><span class="emphasis">closure</span> in a loop</p>
+            <pre class="fragment"><code data-trim data-noescape>
+function cookPie(index) {
+  console.log('#cookPie', index);
+}
+            </code></pre>
+            <pre class="fragment"><code data-trim data-noescape>
+for (var i = 0; i < 5; i++) {
+  setTimeout(() => {
+    cookPie(i);
+  }, i);
+}
+            </code></pre>
+            <pre class="fragment"><code data-trim data-noescape>
+for (var i = 0; i < 5; i++) {
+  setTimeout(((index) => {
+    cookPie(i);
+  })(i), i);
+}
+            </code></pre>
+            <pre class="fragment"><code data-trim data-noescape>
+for (var i = 0; i < 5; i++) {
+  let index = i;
+  setTimeout(() => {
+    cookPie(index);
+  }, i);
+}
+            </code></pre>
+          </section>
+          <section>
+            <p><span class="emphasis">closure</span> in a loop</p>
+            <pre><code data-trim data-noescape>
+for (let i = 0; i < 5; i++) {
+  setTimeout(() => {
+    cookPie(index);
+  }, i);
+}
+            </code></pre>
+          </section>
         </section>
         <section>
           <p><span class="emphasis">chain</span>ing</p>
@@ -801,25 +880,87 @@ function PieFactory() {
           </code></pre>
         </section>
         <section>
-          <p><span class="emphasis">decorator</span></p>
-          <pre class="fragment"><code data-trim data-noescape>
+          <section>
+            <p><span class="emphasis">decorator</span></p>
+            <pre class="fragment"><code data-trim data-noescape>
 function cookPie(type, radius, slice) {
   console.log('#cookPie', type, radius, slice);
 }
-          </code></pre>
-          <pre class="fragment"><code data-trim data-noescape>
+            </code></pre>
+            <pre class="fragment"><code data-trim data-noescape>
 function sendStats(func) {
   return function(...args) {
     console.log('#stats:', args);
     return func(...args);
   };
 }
-          </code></pre>
-          <pre class="fragment"><code data-trim data-noescape>
+            </code></pre>
+            <pre class="fragment"><code data-trim data-noescape>
 cookPie = sendStats(cookPie);
 
 cookPie('lemon', 71, true);
-          </code></pre>
+            </code></pre>
+          </section>
+          <section>
+            <p><span class="emphasis">decorator</span> memoization</p>
+            <pre class="fragment"><code data-trim data-noescape>
+function cookPie(type, radius, slice) {
+  console.log('#cookPie', type, radius, slice);
+  return type;
+}
+            </code></pre>
+            <pre class="fragment"><code data-trim data-noescape>
+function memoize(fun) {
+  return function(...args) {
+    const key = JSON.stringify(args);
+    fun.memory = fun.memory || {};
+
+    if (fun.memory[key]) {
+      return fun.memory[key];
+    }
+
+    return fun.memory[key] = fun(...args);
+  }
+}
+            </code></pre>
+            <pre class="fragment"><code data-trim data-noescape>
+const memCookPie = memoize(cookPie);
+
+console.log(memCookPie('lemon', 38, true));
+console.log(memCookPie('choco', 38, true));
+console.log(memCookPie('lemon', 38, true));
+            </code></pre>
+          </section>
+          <section>
+            <p><span class="emphasis">decorator</span> spy</p>
+            <pre class="fragment"><code data-trim data-noescape>
+function cookPie(type, radius, slice) {
+  console.log('#cookPie', type, radius, slice);
+}
+            </code></pre>
+            <pre class="fragment"><code data-trim data-noescape>
+function spy(fun) {
+  function spied(...args) {
+    spied.callCount += 1;
+    spied.args.push(args);
+
+    return fun(...args);
+  }
+
+  spied.callCount = 0;
+  spied.args = [];
+
+  return spied;
+}
+            </code></pre>
+            <pre class="fragment"><code data-trim data-noescape>
+const spyCookPie = spy(cookPie);
+spyCookPie('lemon', 73, true);
+spyCookPie('choco', 71, false);
+
+console.log(spyCookPie.callCount, spyCookPie.args);
+            </code></pre>
+          </section>
         </section>
 				<section>
 					<h2 class="emphasis">Thanks</h2>
